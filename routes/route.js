@@ -131,7 +131,9 @@ app.post("/forgot-password",authMiddleware, async (req, res, next) => {
     const resetLink = `http://localhost:5000/reset-password/${resetToken}`;
 
    const transporter = nodemailer.createTransport({
-      service: "gmail",
+     // service: "gmail",
+      host: "smtp.sendgrid.net",
+      port: 587,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
