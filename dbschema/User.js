@@ -1,7 +1,8 @@
 const mongoose = require("mongoose") 
 
-const userdb = mongoose.connection.useDb("test")
-const User = userdb.model("users", new mongoose.Schema({
+const userdb = mongoose.connection.useDb("user")
+
+const User = userdb.model("users",  new mongoose.Schema({
     name: {
         type: String, required: true
     },
