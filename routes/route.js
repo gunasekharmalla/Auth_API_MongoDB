@@ -60,7 +60,7 @@ app.post("/login", async (req,res, next)=>{
     const token = jwt.sign(
         {id: existsUser.id, role: existsUser.role, name: existsUser.name},
         process.env.JWT_SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: "2h" }
     )
 
     res.json({
@@ -126,7 +126,7 @@ app.post("/forgot-password", authMiddleware, async (req, res, next) => {
 
     // generate token
     const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "35m",
+      expiresIn: "2h",
     });
 
     const resetLink = `http://localhost:5000/reset-password/${resetToken}`;
