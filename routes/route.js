@@ -110,8 +110,9 @@ app.get("/profile", authMiddleware, (req, res)=>{
         user: req.user
     })
 })
+const sgTransport = require("nodemailer-sendgrid-transport");
 
-app.post("/forgot-password",authMiddleware, async (req, res, next) => {
+app.post("/forgot-password", authMiddleware, async (req, res, next) => {
   try {
     const { email } = req.body;
     if (!email) {
@@ -130,29 +131,27 @@ app.post("/forgot-password",authMiddleware, async (req, res, next) => {
 
     const resetLink = `http://localhost:5000/reset-password/${resetToken}`;
 
-   const transporter = nodemailer.createTransport({
-     // service: "gmail",
-      host: "smtp.sendgrid.net",
-      port: 587,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
- 
+    // Configure SendGrid transporter (API method)
+    const transporter = nodemailer.createTransport(
+      sgTransport({
+        auth: {
+          api_key: process.env.SENDGRID_API_KEY, // Your SendGrid API key
+        },
+      })
+    );
+
+    // Send email
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: "your-email@example.com", // Verified sender in SendGrid
       to: email,
       subject: "Password Reset",
       text: `Click here to reset your password: ${resetLink}`,
     });
 
     return res.json({ message: "Reset email sent successfully" });
-
   } catch (err) {
     console.log(err);
-   // return res.status(500).json({ message: "Error sending reset email" });
-   next(err)
+    next(err);
   }
 });
 
