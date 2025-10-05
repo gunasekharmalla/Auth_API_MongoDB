@@ -12,7 +12,7 @@ const JWT_SECRET = process.env.JWT_SECRET
 
         // user registration 
 
-app.post('/register', async (req, res) => {
+app.post('/register', async (req, res, next) => {
     try {
         const { name, email, password, role } = req.body;
 
@@ -46,7 +46,7 @@ app.post('/register', async (req, res) => {
 
             // user login 
 
-app.post("/login", async (req,res)=>{
+app.post("/login", async (req,res, next)=>{
     try{
     const {email, password} = req.body;
     if(!email || !password) return res.status(400).json({message: "enter email password"}) 
@@ -78,7 +78,7 @@ app.post("/login", async (req,res)=>{
 })
             // delete user admin req
 
-app.delete("/users/:email",authMiddleware, RoleAuth("admin"), async (req, res)=>{
+app.delete("/users/:email",authMiddleware, RoleAuth("admin"), async (req, res, next)=>{
     const {email} = req.params;
     if(!email) return res(400).json({message: "enter user name"})
     try{
@@ -94,7 +94,7 @@ app.delete("/users/:email",authMiddleware, RoleAuth("admin"), async (req, res)=>
 
                 // get all users admin req
 
-app.get("/users",authMiddleware, RoleAuth("admin"), async (req, res)=>{
+app.get("/users",authMiddleware, RoleAuth("admin"), async (req, res, next)=>{
     await User.find().select("-password").then(users=>{
         res.json(users)
     }).catch(err=>{
