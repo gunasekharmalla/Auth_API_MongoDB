@@ -147,8 +147,8 @@ app.post("/forgot-password",authMiddleware, async (req, res, next) => {
 
     return res.json({ message: "Reset email sent successfully" });
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.log(err);
    // return res.status(500).json({ message: "Error sending reset email" });
    next(err)
   }
