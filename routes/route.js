@@ -25,8 +25,7 @@ app.post('/register', async (req, res, next) => {
             error: results.error.issues
           })
         }
-        const { name, email, password } = results.data;
-        let role = results.data;
+        const { name, email, password , role} = results.data;
         const userexist = await User.findOne({ email });
         if (userexist) {
             return res.status(400).json({ message: "user already exists" });
@@ -53,8 +52,7 @@ app.post('/register', async (req, res, next) => {
 
 app.post("/login", async (req,res, next)=>{
     try{
-    // const {email, password} = req.body;
-    // if(!email || !password) return res.status(400).json({message: "enter email password"}) 
+    
     const results = LoginSchema.safeParse(req.body)
     if(!results.success){
       return res.status(400).json({
@@ -81,10 +79,7 @@ app.post("/login", async (req,res, next)=>{
         token: token
     })
 
-} catch(err){ /*
-    res.json({
-        message: "token error"
-    }) */
+} catch(err){ 
    next(err)
 }
 
@@ -96,7 +91,7 @@ app.delete("/users/:email",authMiddleware, RoleAuth("admin"), async (req, res, n
     email: zod.string().email("please enter valid email")
   })
     const results = emailchecker.safeParse(req.params)
-    if(!results.success) return res.status(400).json({message: "enter user name", error: email.error})
+    if(!results.success) return res.status(400).json({message: "enter user name", error: results.error})
     const {email} = results.data;
     try{
     const existUser = await User.findOne({email}) 
@@ -115,7 +110,6 @@ app.get("/users",authMiddleware, RoleAuth("admin"), async (req, res, next)=>{
     await User.find().select("-password").then(users=>{
         res.json(users)
     }).catch(err=>{
-       // res.json({message: err.message})
        next(err)
     })
 })
