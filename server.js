@@ -15,6 +15,12 @@ mongoose.connect(conn, {
 .then(() => console.log("connected to MongoDB Atlas"))
 .catch(err => console.error("error connecting:", err));
 
+
+app.get("/", (req, res) => {
+  console.log("Root route hit");
+  res.json({ message: "Welcome to the Authentication API" });
+});
+
 app.use("/", router )
 
 app.use((err, req, res, next)=>{
