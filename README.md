@@ -98,3 +98,78 @@ POST /reset-password  -> verify token and give new password via req.body
 Passwords are hashed with bcrypt.
 Tokens generated with JWT.
 Role-based middleware ensures only admins can access /users & delete routes.
+
+
+==========================================
+
+CURRENT
+Auth_API_MongoDB
+      │
+      ▼
+PHASE 1 — Make it reliable
+      │
+      ├── Centralized error handling
+      ├── Input validation
+      ├── Consistent API responses
+      └── Environment/config discipline
+      │
+      ▼
+PHASE 2 — Make it secure
+      │
+      ├── Password security audit
+      ├── JWT lifecycle
+      ├── Authentication vs authorization
+      ├── Helmet
+      ├── Rate limiting
+      └── Security best practices
+      │
+      ▼
+PHASE 3 — Prove it works
+      │
+      ├── Jest
+      ├── Supertest
+      ├── Unit tests
+      ├── Integration tests
+      └── Test database
+      │
+      ▼
+PHASE 4 — Make it deployable
+      │
+      ├── Docker
+      ├── Docker Compose
+      ├── Health check
+      └── Production configuration
+      │
+      ▼
+PHASE 5 — CI/CD
+      │
+      └── GitHub Actions
+            ├── lint
+            ├── test
+            └── build
+      │
+      ▼
+PHASE 6 — Real backend engineering
+      │
+      ├── PostgreSQL
+      ├── SQL
+      ├── Prisma
+      ├── Transactions
+      ├── Indexes
+      └── Query optimization
+      │
+      ▼
+PHASE 7 — Scale the API
+      │
+      ├── Redis
+      ├── Caching
+      ├── BullMQ
+      ├── Background jobs
+      ├── Pagination
+      └── Idempotency
+      │
+      ▼
+PRODUCTION-LEVEL BACKEND
+
+
+===================================================

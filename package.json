@@ -1,11 +1,12 @@
 {
   "name": "blogapi",
   "version": "1.0.0",
-  "description": "",
+  "description": "Auth API with MongoDB Atlas",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "dev": "nodemon -L server.js"
   },
   "keywords": [],
   "author": "",
@@ -14,13 +15,22 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
-    "dotenv": "^17.2.1",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.0",
     "nodemailer": "^7.0.6",
     "nodemailer-sendgrid-transport": "^0.2.0",
-    "nodemon": "^3.1.10",
-    "uuid": "^11.1.0"
-  }
+    "nodemon": "^3.1.14",
+    "uuid": "^11.1.0",
+    "zod": "^4.4.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gunasekharmalla/Auth_API_MongoDB.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gunasekharmalla/Auth_API_MongoDB/issues"
+  },
+  "homepage": "https://github.com/gunasekharmalla/Auth_API_MongoDB#readme"
 }
