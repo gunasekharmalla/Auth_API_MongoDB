@@ -47,7 +47,7 @@ Install dependencies:
 npm install (all libraries used in package.json)
 Create a .env file in root:
 PORT=5000
-MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/test
+MONGO_URL=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/test
 JWT_SECRET=yourSecretKey
 JWT_EMAIL_USER = from mail to send reset link
 JWT_EMAIL_PASS = your 16digit google gmail app password

@@ -17,9 +17,7 @@ const JWT_SECRET = process.env.JWT_SECRET
 
 app.post('/register', async (req, res, next) => {
     try {
-        // if (!name || !email || !password) {
-        //     return res.status(400).json({ message: "name, email, and password are required" });
-        // }
+      
         const results = UserSchema.safeParse(req.body)
         if(!results.success){
           return res.status(400).json({
@@ -27,8 +25,8 @@ app.post('/register', async (req, res, next) => {
             error: results.error.issues
           })
         }
-        const { name, email, password, role } = results.data;
-
+        const { name, email, password } = results.data;
+        let role = results.data;
         const userexist = await User.findOne({ email });
         if (userexist) {
             return res.status(400).json({ message: "user already exists" });
@@ -37,18 +35,16 @@ app.post('/register', async (req, res, next) => {
         const hashpswd = await bcrypt.hash(password, 10);
 
         const newUser = new User({
-           // id: uuidv4(),
             name,
             email,
             password: hashpswd,
-            role: role || "user"
+            role: "user"
         });
 
         await newUser.save();
         res.status(201).send("user profile created");
 
     } catch (err) {
-       // res.status(500).json({ message: err.message });
        next(err)
     }
 });
@@ -133,7 +129,7 @@ app.get("/profile", authMiddleware, (req, res)=>{
 })
 const sgTransport = require("nodemailer-sendgrid-transport");
 
-app.post("/forgot-password", authMiddleware, async (req, res, next) => {
+app.post("/forgot-password", async (req, res, next) => {
   try {
     const emailchecker = zod.object({
       email: zod.string().email("please enter valid email")
@@ -189,7 +185,7 @@ app.post("/forgot-password", authMiddleware, async (req, res, next) => {
 });
 
 
-app.post("/reset-password/:token",authMiddleware, async (req, res, next) => {
+app.post("/reset-password/:token", async (req, res, next) => {
   const { token } = req.params;
 
    const passwordchecker = zod.object({

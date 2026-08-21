@@ -15,9 +15,7 @@ mongoose.connect(conn, {
 .then(() => console.log("connected to MongoDB Atlas"))
 .catch(err => console.error("error connecting:", err));
 
-
 app.use("/", router )
-
 
 app.use((err, req, res, next)=>{
   const statuscode = err.statuscode || 500
