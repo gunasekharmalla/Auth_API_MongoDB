@@ -8,17 +8,26 @@ const jwt = require("jsonwebtoken")
 const authMiddleware = require("../middleware/Auth")
 const RoleAuth = require("../middleware/RoleAuth")
 const nodemailer = require("nodemailer")
+const {UserSchema} = require("../validation/validation")
+const {LoginSchema} = require("../validation/loginschema")
+const zod = require("zod") 
 const JWT_SECRET = process.env.JWT_SECRET
 
         // user registration 
 
 app.post('/register', async (req, res, next) => {
     try {
-        const { name, email, password, role } = req.body;
-
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: "name, email, and password are required" });
+        // if (!name || !email || !password) {
+        //     return res.status(400).json({ message: "name, email, and password are required" });
+        // }
+        const results = UserSchema.safeParse(req.body)
+        if(!results.success){
+          return res.status(400).json({
+            message :"validation failed",
+            error: results.error.issues
+          })
         }
+        const { name, email, password, role } = results.data;
 
         const userexist = await User.findOne({ email });
         if (userexist) {
@@ -48,19 +57,27 @@ app.post('/register', async (req, res, next) => {
 
 app.post("/login", async (req,res, next)=>{
     try{
-    const {email, password} = req.body;
-    if(!email || !password) return res.status(400).json({message: "enter email password"}) 
-    
+    // const {email, password} = req.body;
+    // if(!email || !password) return res.status(400).json({message: "enter email password"}) 
+    const results = LoginSchema.safeParse(req.body)
+    if(!results.success){
+      return res.status(400).json({
+        message: "enter valid input",
+        error: results.error.issues
+      })
+    }
+    const {email, password} = results.data;
+
     const existsUser = await User.findOne({email}) 
-    if(!existsUser) return res.json({message:"user does not exist"})  
+    if(!existsUser) return res.status(404).json({message:"user does not exist"})  
     
     const matched = await bcrypt.compare(password, existsUser.password)
-    if(!matched) return res.json({message: "invalid password or to reset password go to users/forgot-password"}) 
+    if(!matched) return res.status(404).json({message: "invalid password or to reset password go to users/forgot-password"}) 
     
     const token = jwt.sign(
         {id: existsUser.id, role: existsUser.role, name: existsUser.name},
         process.env.JWT_SECRET,
-        { expiresIn: "2h" }
+        { expiresIn: "1h" }
     )
 
     res.json({
@@ -79,8 +96,12 @@ app.post("/login", async (req,res, next)=>{
             // delete user admin req
 
 app.delete("/users/:email",authMiddleware, RoleAuth("admin"), async (req, res, next)=>{
-    const {email} = req.params;
-    if(!email) return res(400).json({message: "enter user name"})
+  const emailchecker = zod.object({
+    email: zod.string().email("please enter valid email")
+  })
+    const results = emailchecker.safeParse(req.params)
+    if(!results.success) return res.status(400).json({message: "enter user name", error: email.error})
+    const {email} = results.data;
     try{
     const existUser = await User.findOne({email}) 
     if (!existUser) return res.status(404).json({message: "user not found"})
@@ -114,7 +135,19 @@ const sgTransport = require("nodemailer-sendgrid-transport");
 
 app.post("/forgot-password", authMiddleware, async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const emailchecker = zod.object({
+      email: zod.string().email("please enter valid email")
+    })
+    const data = emailchecker.safeParse(req.body)
+    if(!data.success){
+      return res.status(400).json({
+        message: "enter valid email",
+        error: data.error.issues
+      })
+    }
+
+    const { email } = data.data;
+
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
     }
@@ -158,7 +191,17 @@ app.post("/forgot-password", authMiddleware, async (req, res, next) => {
 
 app.post("/reset-password/:token",authMiddleware, async (req, res, next) => {
   const { token } = req.params;
-  const { password } = req.body;
+
+   const passwordchecker = zod.object({
+      password: zod.string().min(6, "password should be len 6 min ")
+    })
+    const results= passwordchecker.safeParse(req.body)
+  if(!results.success){
+    return res.status(400).json({
+      message: results.error.issues
+    })
+  }
+  const { password } = results.data;
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -168,7 +211,7 @@ app.post("/reset-password/:token",authMiddleware, async (req, res, next) => {
 
     res.json({ message: "Password reset successful!" });
   } catch (err) {
-   // res.status(400).json({ message: "Invalid or expired token" });
+    err.statuscode = 400;
    next(err)
   }
 });
