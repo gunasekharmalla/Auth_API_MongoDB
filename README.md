@@ -97,6 +97,12 @@ Returns `404` for an unknown email or an incorrect password (no distinction is c
 
 `DELETE /users/:email` — delete a user by email. **Admin only.**
 
+`PATCH /users/updaterole/:email/role` — change a user's role. **Admin only.**
+```json
+{ "role": "admin" }
+```
+Accepts `"user"` or `"admin"`. Returns `404` for an unknown email, or `200` with a no-op message if the user already has the requested role.
+
 **Password Recovery** *(no `Authorization` header required — see Security notes)*
 
 `POST /forgot-password` — request a reset link.
@@ -115,7 +121,7 @@ An invalid or expired token correctly returns `400`, not a `500`.
 
 - Passwords hashed with bcrypt before storage — plaintext is never persisted.
 - JWTs signed with a server-side secret (`JWT_SECRET`); session tokens expire in 1h, reset tokens in 2h.
-- Role-based middleware (`RoleAuth`) restricts `/users` and `DELETE /users/:email` to admins.
+- Role-based middleware (`RoleAuth`) restricts `/users`, `DELETE /users/:email`, and `PATCH /users/updaterole/:email/role` to admins.
 - `/forgot-password` and `/reset-password/:token` deliberately skip session (`Authorization`) authentication: a user who forgot their password can't have a valid session in the first place. Instead, the signed reset token itself — proof of access to the emailed link — is the credential for that one action.
 - All request bodies/params are validated with Zod before touching business logic or the database.
 - `.env` is git-ignored; no credentials are committed.
