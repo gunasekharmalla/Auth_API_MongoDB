@@ -17,8 +17,17 @@ mongoose.connect(conn, {
 
 
 app.get("/", (req, res) => {
-  console.log("Root route hit");
-  res.json({ message: "Welcome to the Authentication API" });
+  res.send(`
+    <html>
+      <head><title>Auth API — MongoDB</title></head>
+      <body style="font-family: sans-serif; padding: 40px;">
+        <h1>Authentication API</h1>
+        <p>A production-style authentication and user-management API built with Node.js, Express, and MongoDB.</p>
+        <p>JWT auth · role-based access · password reset via email · Zod validation</p>
+        <p><a href="https://github.com/gunasekharmalla/Auth_API_MongoDB">View source on GitHub</a></p>
+      </body>
+    </html>
+  `);
 });
 
 app.use("/", router )
