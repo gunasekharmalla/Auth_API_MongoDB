@@ -121,6 +121,58 @@ app.get("/profile", authMiddleware, (req, res)=>{
         user: req.user
     })
 })
+
+
+app.patch("/users/updaterole/:email/role", authMiddleware, RoleAuth("admin"), async (req, res, next)=>{
+  try{
+  const zodemail = zod.object({
+    email: zod.string().email("please enter valid email"),
+    role: zod.enum(["user","admin"])
+  })
+
+  const data = {
+    email: req.params.email,
+    role: req.body.role
+  }
+  const results =  zodemail.safeParse(data)
+  if(!results.success){
+    return res.status(400).json({
+      message: results.error.issues
+    })
+  }
+
+  const { email, role } = results.data;
+  const exist_user = await User.findOne({ email });
+
+  if (!exist_user) {
+      return res.status(404).json({
+          message: "user not found"
+      });
+  }
+
+  if (exist_user.role === role) {
+      return res.status(200).json({
+        message: "User already has this role"
+      });
+    }
+
+await User.findOneAndUpdate(
+    { email },
+    { role }
+);
+
+return res.status(200).json({
+    message: "user role updated successfully",
+    email,
+    oldRole: exist_user.role,
+    newRole: role
+});
+}catch(err){
+    next(err)
+  }
+})
+
+
 const sgTransport = require("nodemailer-sendgrid-transport");
 
 app.post("/forgot-password", async (req, res, next) => {
