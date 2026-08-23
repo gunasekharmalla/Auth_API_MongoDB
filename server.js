@@ -5,9 +5,18 @@ const router = require("./routes/route")
 const port = 5000
 const app = express()
 app.use(express.json())
+const AppError = require("./utils/AppError")
+
+const env_variables = ["MONGO_URL", "JWT_SECRET", "SENDGRID_API_KEY"]
+const res = env_variables.filter(vars => !process.env[vars])
+if (res.length > 0) {
+  console.error(`Missing env vars: ${res.join(", ")}`);
+  process.exit(1);
+}
+
 const conn = process.env.MONGO_URL
 
- // mongodb atlas connection 
+// mongodb atlas connection 
 mongoose.connect(conn, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -32,10 +41,15 @@ app.get("/", (req, res) => {
 
 app.use("/", router )
 
+app.use((req, res, next)=>{
+  next(new AppError(`route ${req.originalUrl} not found`, 404))
+})
+
 app.use((err, req, res, next)=>{
-  const statuscode = err.statuscode || 500
+  const statusCode = err.statusCode || 500
   console.log(err.message)
-  res.status(statuscode).json({error: err.message})
+  res.status(statusCode).json({error: err.isOperational ? err.message : "something went wrong"})
+
 })
 
 app.listen(port, ()=>{

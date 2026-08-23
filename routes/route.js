@@ -11,6 +11,7 @@ const nodemailer = require("nodemailer")
 const {UserSchema} = require("../validation/validation")
 const {LoginSchema} = require("../validation/loginschema")
 const zod = require("zod") 
+const AppError = require("../utils/AppError")
 const JWT_SECRET = process.env.JWT_SECRET
 
         // user registration 
@@ -63,8 +64,10 @@ app.post("/login", async (req,res, next)=>{
     const {email, password} = results.data;
 
     const existsUser = await User.findOne({email}) 
-    if(!existsUser) return res.status(404).json({message:"user does not exist"})  
-    
+    //if(!existsUser) return res.status(404).json({message:"user does not exist"})  
+    if(!existsUser) {
+       throw new AppError("user not found", 404)
+    }
     const matched = await bcrypt.compare(password, existsUser.password)
     if(!matched) return res.status(404).json({message: "invalid password or to reset password go to users/forgot-password"}) 
     
@@ -217,7 +220,7 @@ app.post("/forgot-password", async (req, res, next) => {
 
     // Send email
     await transporter.sendMail({
-      from: "your-email@example.com", // Verified sender in SendGrid
+      from: "gunagunasekhar16@gmail.com", // Verified sender in SendGrid
       to: email,
       subject: "Password Reset",
       text: `Click here to reset your password: ${resetLink}`,
@@ -253,8 +256,7 @@ app.post("/reset-password/:token", async (req, res, next) => {
 
     res.json({ message: "Password reset successful!" });
   } catch (err) {
-    err.statuscode = 400;
-   next(err)
+       next(new AppError("invalid or expired token", 400))
   }
 });
 

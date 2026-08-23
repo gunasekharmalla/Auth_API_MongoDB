@@ -12,7 +12,7 @@ Deployed live on Render:
 - JWT authentication via middleware (`Authorization: Bearer <token>`).
 - Role-based authorization (`user` / `admin`) — new registrations are always created as `user`; admin accounts must be provisioned directly in the database, not through the public API.
 - Server-side input validation on every route (Zod) — malformed requests get a structured `400` with field-level error details, never a silent failure or a generic crash.
-- Centralized error handling — all uncaught/thrown errors flow through a single error-handling middleware, which respects a `statuscode` set on the error (e.g. an expired reset token correctly returns `400`, not a generic `500`).
+- Centralized error handling — a custom `AppError` class marks expected/operational errors with a status code (e.g. an expired reset token returns `400`, not a generic `500`); every route funnels errors to one middleware, which shows the safe message for operational errors and a generic message for anything unexpected (no internal details leaked). Unmatched routes return a structured `404` instead of Express's default HTML error page.
 - Forgot-password / reset-password flow via a signed, time-limited JWT reset token emailed through SendGrid — deliberately does **not** require an active login session (see Security section for why).
 - MongoDB Atlas for data storage (Mongoose ODM).
 - Environment-based configuration — no secrets committed to the repo.
