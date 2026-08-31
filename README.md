@@ -27,6 +27,7 @@ Deployed live on Render:
 - nodemailer + nodemailer-sendgrid-transport (password reset emails)
 - dotenv (environment config)
 - pino + pino-http (structured logging)
+- express-rate-limit (rate limiting on auth endpoints)
 
 📂 Project Structure
 ```
@@ -126,9 +127,9 @@ An invalid or expired token correctly returns `400`, not a `500`.
 - `/forgot-password` and `/reset-password/:token` deliberately skip session (`Authorization`) authentication: a user who forgot their password can't have a valid session in the first place. Instead, the signed reset token itself — proof of access to the emailed link — is the credential for that one action.
 - All request bodies/params are validated with Zod before touching business logic or the database.
 - `.env` is git-ignored; no credentials are committed.
+- Rate limiting on `/register`, `/login`, `/forgot-password`, and `/reset-password/:token` via `express-rate-limit`, to slow brute-force/credential-stuffing attempts.
 
 **Known gaps (being worked through, tracked honestly rather than hidden):**
-- No rate limiting yet — auth endpoints are not yet protected against brute-force/credential-stuffing attempts.
 - No `helmet` security headers yet.
 - `/login` and `/forgot-password` don't yet mask user-enumeration (different code paths are inferable from response codes/timing).
 - No automated tests yet.

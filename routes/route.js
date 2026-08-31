@@ -13,12 +13,16 @@ const {LoginSchema} = require("../validation/loginschema")
 const zod = require("zod") 
 const AppError = require("../utils/AppError")
 const logger = require("../utils/logger")
+const loginlimiter = require("../middleware/login_limiter")
+const registerLimiter = require("../middleware/register_limiter")
+const forgotPasswordLimit = require("../middleware/forgot-password_limiter")
+const resetLimiter = require("../middleware/reset-password_limiter")
 const JWT_SECRET = process.env.JWT_SECRET
 
 
         // user registration 
 
-app.post('/register', async (req, res, next) => {
+app.post('/register', registerLimiter, async (req, res, next) => {
     try {
       
         const results = UserSchema.safeParse(req.body)
@@ -53,7 +57,7 @@ app.post('/register', async (req, res, next) => {
 
             // user login 
 
-app.post("/login", async (req,res, next)=>{
+app.post("/login", loginlimiter, async (req,res, next)=>{
     try{
     
     const results = LoginSchema.safeParse(req.body)
@@ -180,7 +184,7 @@ return res.status(200).json({
 
 const sgTransport = require("nodemailer-sendgrid-transport");
 
-app.post("/forgot-password", async (req, res, next) => {
+app.post("/forgot-password",  forgotPasswordLimit, async (req, res, next) => {
   try {
     const emailchecker = zod.object({
       email: zod.string().email("please enter valid email")
@@ -237,7 +241,7 @@ app.post("/forgot-password", async (req, res, next) => {
 });
 
 
-app.post("/reset-password/:token", async (req, res, next) => {
+app.post("/reset-password/:token", resetLimiter,  async (req, res, next) => {
   const { token } = req.params;
 
    const passwordchecker = zod.object({
