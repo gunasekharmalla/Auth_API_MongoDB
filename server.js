@@ -1,18 +1,21 @@
 require("dotenv").config() 
 const express = require("express")
 const mongoose = require("mongoose")
-const router = require("./routes/route")
+//const router = require("./routes/route")
+const router = require("./routes/routes.js")
 const port = 5000
 const app = express()
 app.use(express.json())
 const AppError = require("./utils/AppError")
+const logger = require("./utils/logger")
 
-const env_variables = ["MONGO_URL", "JWT_SECRET", "SENDGRID_API_KEY"]
-const res = env_variables.filter(vars => !process.env[vars])
-if (res.length > 0) {
-  console.error(`Missing env vars: ${res.join(", ")}`);
-  process.exit(1);
-}
+// const env_variables = ["MONGO_URL", "JWT_SECRET", "SENDGRID_API_KEY"]
+// const res = env_variables.filter(vars => !process.env[vars])
+// if (res.length > 0) {
+//  // console.error(`Missing env vars: ${res.join(", ")}`);
+//  logger.error(`missing env vars: ${res.join(", ")}`)
+//   process.exit(1);
+// }
 
 const conn = process.env.MONGO_URL
 
@@ -21,8 +24,8 @@ mongoose.connect(conn, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log("connected to MongoDB Atlas"))
-.catch(err => console.error("error connecting:", err));
+.then(() => logger.info("connected to mongodb atlas"))
+.catch(err => logger.error(err, "mongodb connection failed"));
 
 
 app.get("/", (req, res) => {
@@ -41,17 +44,19 @@ app.get("/", (req, res) => {
 
 app.use("/", router )
 
-app.use((req, res, next)=>{
-  next(new AppError(`route ${req.originalUrl} not found`, 404))
-})
+// app.use((req, res, next)=>{
+//   next(new AppError(`route ${req.originalUrl} not found`, 404))
+// })
 
-app.use((err, req, res, next)=>{
-  const statusCode = err.statusCode || 500
-  console.log(err.message)
-  res.status(statusCode).json({error: err.isOperational ? err.message : "something went wrong"})
+// app.use((err, req, res, next)=>{
+//   const statusCode = err.statusCode || 500
+//   //console.log(err.message)
+//   logger.error(err, `failed while calling ${req.originalUrl}`)
+//   res.status(statusCode).json({error: err.isOperational ? err.message : "something went wrong"})
 
-})
+// })
 
 app.listen(port, ()=>{
-    console.log(`app running at http://localhost:${port}`) 
+   // console.log(`app running at http://localhost:${port}`) 
+   logger.info(`application running on http://localhost:${port}`)
 })
