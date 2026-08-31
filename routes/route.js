@@ -12,7 +12,9 @@ const {UserSchema} = require("../validation/validation")
 const {LoginSchema} = require("../validation/loginschema")
 const zod = require("zod") 
 const AppError = require("../utils/AppError")
+const logger = require("../utils/logger")
 const JWT_SECRET = process.env.JWT_SECRET
+
 
         // user registration 
 
@@ -26,7 +28,7 @@ app.post('/register', async (req, res, next) => {
             error: results.error.issues
           })
         }
-        const { name, email, password , role} = results.data;
+        const { name, email, password } = results.data;
         const userexist = await User.findOne({ email });
         if (userexist) {
             return res.status(400).json({ message: "user already exists" });
@@ -228,7 +230,8 @@ app.post("/forgot-password", async (req, res, next) => {
 
     return res.json({ message: "Reset email sent successfully" });
   } catch (err) {
-    console.log(err);
+   // console.log(err);
+   logger.error({error: err.message}, "forgot-password failed to sent")
     next(err);
   }
 });

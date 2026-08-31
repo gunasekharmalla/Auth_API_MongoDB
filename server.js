@@ -6,13 +6,21 @@ const port = 5000
 const app = express()
 app.use(express.json())
 const AppError = require("./utils/AppError")
-
+const logger = require("./utils/logger")
+const pinohttp = require("pino-http")
 const env_variables = ["MONGO_URL", "JWT_SECRET", "SENDGRID_API_KEY"]
 const res = env_variables.filter(vars => !process.env[vars])
 if (res.length > 0) {
-  console.error(`Missing env vars: ${res.join(", ")}`);
+ logger.error(`Missing env vars: ${res.join(", ")}`)
   process.exit(1);
 }
+
+const httplogger = pinohttp({
+  logger: logger,
+  redact : [
+    "req.headers"
+  ]
+})
 
 const conn = process.env.MONGO_URL
 
@@ -21,8 +29,8 @@ mongoose.connect(conn, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log("connected to MongoDB Atlas"))
-.catch(err => console.error("error connecting:", err));
+.then(()=> logger.info("mongodb atlas connected"))
+.catch((err)=> logger.error({error: err.message}))
 
 
 app.get("/", (req, res) => {
@@ -39,6 +47,9 @@ app.get("/", (req, res) => {
   `);
 });
 
+
+app.use(httplogger)
+
 app.use("/", router )
 
 app.use((req, res, next)=>{
@@ -47,11 +58,12 @@ app.use((req, res, next)=>{
 
 app.use((err, req, res, next)=>{
   const statusCode = err.statusCode || 500
-  console.log(err.message)
+  //console.log(err.message)
+  logger.error({error: err.message}, "something went wrong")
   res.status(statusCode).json({error: err.isOperational ? err.message : "something went wrong"})
 
 })
 
 app.listen(port, ()=>{
-    console.log(`app running at http://localhost:${port}`) 
+   logger.info(`server running at http://localhost:${port}`)
 })
