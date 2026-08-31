@@ -26,6 +26,7 @@ Deployed live on Render:
 - bcrypt (password hashing)
 - nodemailer + nodemailer-sendgrid-transport (password reset emails)
 - dotenv (environment config)
+- pino + pino-http (structured logging)
 
 📂 Project Structure
 ```
@@ -62,7 +63,7 @@ SENDGRID_API_KEY=your-sendgrid-api-key
 
 Run locally:
 ```
-npm start
+npm start dev or npm start
 ```
 API runs at `http://localhost:5000`.
 
@@ -131,7 +132,6 @@ An invalid or expired token correctly returns `400`, not a `500`.
 - No `helmet` security headers yet.
 - `/login` and `/forgot-password` don't yet mask user-enumeration (different code paths are inferable from response codes/timing).
 - No automated tests yet.
-- Logging is currently `console.log`, not structured.
 
 🌱 Development Workflow
 
